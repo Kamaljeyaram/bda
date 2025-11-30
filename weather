@@ -1,0 +1,77 @@
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WeatherMR {
+
+    // Mapper
+    public static class MapClass extends Mapper<LongWritable, Text, Text, DoubleWritable> {
+        public void map(LongWritable k, Text v, Context c) throws IOException, InterruptedException {
+            String[] p = v.toString().split("\\s+");   // city date time temp
+            if (p.length == 4)
+                c.write(new Text(p[0]), new DoubleWritable(Double.parseDouble(p[3])));
+        }
+    }
+
+    // Reducer
+    public static class ReduceClass extends Reducer<Text, DoubleWritable, Text, Text> {
+        public void reduce(Text city, Iterable<DoubleWritable> values, Context c)
+                throws IOException, InterruptedException {
+
+            double min = Double.POSITIVE_INFINITY;
+            double max = Double.NEGATIVE_INFINITY;
+
+            for (DoubleWritable t : values) {
+                double temp = t.get();
+                if (temp < min) min = temp;
+                if (temp > max) max = temp;
+            }
+
+            String result = "MinTemp=" + min + "   MaxTemp=" + max;
+            c.write(city, new Text(result));
+        }
+    }
+
+    // Driver
+    public static void main(String[] args) throws Exception {
+        Job j = Job.getInstance(new Configuration(), "WeatherMinMax");
+        j.setJarByClass(WeatherMR.class);
+
+        j.setMapperClass(MapClass.class);
+        j.setReducerClass(ReduceClass.class);
+
+        j.setOutputKeyClass(Text.class);
+        j.setOutputValueClass(DoubleWritable.class);
+
+        j.setMapOutputKeyClass(Text.class);
+        j.setMapOutputValueClass(DoubleWritable.class);
+
+        FileInputFormat.addInputPath(j, new Path(args[0]));
+        FileOutputFormat.setOutputPath(j, new Path(args[1]));
+
+        System.exit(j.waitForCompletion(true) ? 0 : 1);
+    }
+}
+
+step1:javac -cp `hadoop classpath` WeatherMR.java
+step2:jar cf weather.jar WeatherMR*.class
+step3:hdfs dfs -mkdir /weather
+step4:nano input.txt
+Austin 25-Jan-2018 12:34:54 35.7
+Austin 25-Jan-2018 05:12:34 -22.3
+NewYork 25-Jan-2018 09:00:00 -5.0
+NewYork 25-Jan-2018 15:00:00 3.0
+
+step5:hdfs dfs -put input.txt /weather/
+step6:hadoop jar weather.jar WeatherMR /weather/input.txt /weather/output
+
+step7:hdfs dfs -cat /weather/output/part-r-00000
+
+
+
+
+
