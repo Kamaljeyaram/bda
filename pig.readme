@@ -22,6 +22,15 @@ Apache Pig version 0.17.0
 3. Upload Input File to HDFS
 Step 1 — Create HDFS input directory
 hdfs dfs -mkdir /input10
+nano HDFS_File.txt
+enter and paste the below
+
+Hadoop is fast
+Hadoop is powerful
+Pig is easy
+Pig works with Hadoop
+Big data uses Hadoop and Pig
+
 Step 2 — Upload your file
 hdfs dfs -put HDFS_File.txt /input10/
 Step 3 — Verify
