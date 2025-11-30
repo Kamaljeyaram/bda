@@ -56,6 +56,8 @@ public class WeatherMR {
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
 }
+start-dfs.sh
+start-yarn.sh
 
 step1:javac -cp `hadoop classpath` WeatherMR.java
 step2:jar cf weather.jar WeatherMR*.class
