@@ -1,0 +1,60 @@
+✅ 1. Installing ggplot2
+If R asks for Rtools on Windows, ignore it unless you are installing packages from source.
+
+Install ggplot2:
+
+install.packages("ggplot2")
+Load the library:
+
+library(ggplot2)
+If you see:
+
+Use suppressPackageStartupMessages() to eliminate package startup messages
+This is normal.
+
+✅ 2. Loading and Viewing the Iris Dataset
+data(iris)
+head(iris)
+View(iris)
+This displays the first rows and opens the dataset viewer.
+
+✅ 3. Using qplot()
+
+qplot(Sepal.Length, Sepal.Width, data = iris)
+
+
+qplot(Sepal.Length, Sepal.Width, data = iris, colour = Species)
+
+qplot(Sepal.Length, Sepal.Width, data = iris,
+      colour = Species, size = Petal.Length)
+
+qplot(Sepal.Length, Petal.Length, data = iris,
+      color = Species, size = Petal.Width,
+      alpha = I(0.7))
+
+✅ 4. Base R: Histograms for Iris Dataset
+par(mfrow = c(1, 4))
+for (i in 1:4) {
+    hist(iris[, i], main = names(iris)[i])
+}
+
+5.Scatterplot
+pairs(iris)
+
+6.density plot
+Density Plots using caret (featurePlot)
+📌 1. Load required library
+library(caret)
+📌 2. Load the iris dataset
+data(iris)
+📌 3. Create density plots for each feature grouped by Species
+featurePlot(
+  x = iris[, 1:4],      # numeric columns
+  y = iris[, 5],        # Species column (factor)
+  plot = "density",
+  scales = list(
+    x = list(relation = "free"),
+    y = list(relation = "free")
+  ),
+  auto.key = list(columns = 3)
+)
