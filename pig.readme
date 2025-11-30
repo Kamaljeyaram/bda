@@ -1,0 +1,46 @@
+1. Install Apache Pig on Ubuntu (WSL)
+Step 1 — Download Pig
+wget https://downloads.apache.org/pig/pig-0.17.0/pig-0.17.0.tar.gz
+Step 2 — Extract
+tar -xvf pig-0.17.0.tar.gz
+Step 3 — Move to /usr/local
+sudo mv pig-0.17.0 /usr/local/pig
+Step 4 — Set Environment Variables
+Open .bashrc:
+
+nano ~/.bashrc
+Add these lines:
+
+export PIG_HOME=/usr/local/pig
+export PATH=$PATH:$PIG_HOME/bin
+export PIG_CLASSPATH=$HADOOP_HOME/etc/hadoop
+Save and reload:
+
+source ~/.bashrc
+
+Apache Pig version 0.17.0
+3. Upload Input File to HDFS
+Step 1 — Create HDFS input directory
+hdfs dfs -mkdir /input10
+Step 2 — Upload your file
+hdfs dfs -put HDFS_File.txt /input10/
+Step 3 — Verify
+hdfs dfs -ls /input10
+4. WordCount Pig Script (wordcount.pig)
+Create the script:
+
+nano wordcount.pig
+Paste this:
+
+lines = LOAD '/input10/HDFS_File.txt' AS (line:chararray);
+words = FOREACH lines GENERATE FLATTEN(TOKENIZE(line)) AS word;
+grouped = GROUP words BY word;
+wordcount = FOREACH grouped GENERATE group AS word, COUNT(words) AS count;
+DUMP wordcount;
+Save the file.
+
+5. Run the Pig Script
+Pig has two execution modes:
+
+Option A — MapReduce mode (for HDFS input)
+pig -x mapreduce wordcount.pig
