@@ -1,0 +1,95 @@
+
+🔧 Step 1: Update WSL Ubuntu
+sudo apt update && sudo apt upgrade -y
+🔧 Step 2: Install Java (Hadoop needs Java 8/11)
+sudo apt install openjdk-11-jdk -y
+Check version:
+
+java -version
+🔧 Step 3: Create Hadoop User (optional but recommended)
+sudo adduser hadoop
+sudo usermod -aG sudo hadoop
+su - hadoop
+🔧 Step 4: Download Hadoop
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+Extract:
+
+tar -xvzf hadoop-3.3.6.tar.gz
+Move Hadoop:
+
+sudo mv hadoop-3.3.6 /usr/local/hadoop
+🔧 Step 5: Set Environment Variables
+Open .bashrc:
+
+nano ~/.bashrc
+Add these lines at the bottom:
+
+export HADOOP_HOME=/usr/local/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+Reload:
+
+source ~/.bashrc
+🔧 Step 6: Configure Hadoop Files
+✔ Edit hadoop-env.sh
+nano /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+Add:
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+✔ Edit core-site.xml
+nano /usr/local/hadoop/etc/hadoop/core-site.xml
+Add inside <configuration>:
+
+<property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://localhost:9000</value>
+</property>
+✔ Edit hdfs-site.xml
+nano /usr/local/hadoop/etc/hadoop/hdfs-site.xml
+Add:
+
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+
+<property>
+  <name>dfs.namenode.name.dir</name>
+  <value>file:///usr/local/hadoop/hadoop_data/hdfs/namenode</value>
+</property>
+
+<property>
+  <name>dfs.datanode.data.dir</name>
+  <value>file:///usr/local/hadoop/hadoop_data/hdfs/datanode</value>
+</property>
+🔐 Step 7: Enable SSH (Hadoop requires SSH)
+Install SSH:
+
+sudo apt install openssh-server -y
+Generate key:
+
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+Test:
+
+ssh localhost
+If you get a prompt → type yes.
+
+🔧 Step 8: Format the Namenode
+hdfs namenode -format
+▶️ Step 9: Start Hadoop
+start-dfs.sh
+start-yarn.sh
+Check running services:
+
+jps
+Service	URL
+Namenode	http://localhost:9870
+YARN Resource Manager	http://localhost:8088
